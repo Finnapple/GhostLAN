@@ -565,6 +565,16 @@ if (
       color: #fff;
     }
 
+    /* Upload button disabled styles */
+    #uploadButton:disabled {
+      cursor: not-allowed;
+      opacity: 0.5;
+    }
+
+    #uploadButton:disabled svg {
+      stroke: #ccc;
+    }
+
     /* Desktop specific styles */
     @media (min-width: 768px) {
       .app-container {
@@ -772,7 +782,7 @@ if (
 
     <div class="input-area">
       <div class="input-section">
-        <label class="input-label">Developed by @huwamee</label>
+        <label class="input-label">Developed by @Finnapple</label>
         <div class="name-input-wrapper" style="position: relative;">
           <svg class="name-icon" viewBox="0 0 24 24">
             <path d="M12 2C13.1 2 14 2.9 14 4C14 5.1 13.1 6 12 6C10.9 6 10 5.1 10 4C10 2.9 10.9 2 12 2ZM21 9V7L15 4V6L21 9ZM15 10.26L21 7.26V9.26L15 12.26V10.26ZM12 7C16.42 7 20 8.79 20 11V13C20 15.21 16.42 17 12 17S4 15.21 4 13V11C4 8.79 7.58 7 12 7Z"/>
@@ -781,8 +791,8 @@ if (
           <!-- Upload button at the far right -->
           <form id="uploadForm" enctype="multipart/form-data" style="position: absolute; right: 0; top: 50%; transform: translateY(-50%); display: flex; align-items: center; gap: 0;">
             <input type="file" id="fileInput" name="files[]" multiple style="display:none;" />
-            <button type="button" id="uploadButton" style="background:transparent;border:none;cursor:pointer;padding:0 8px;outline:none;">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#007700" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+            <button type="button" id="uploadButton" style="background:transparent;border:none;cursor:not-allowed;padding:0 8px;outline:none;opacity:0.5;" disabled>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#ccc" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
             </button>
           </form>
         </div>
@@ -901,47 +911,48 @@ if (
     function hideScrollIndicator() {
       scrollIndicator.classList.remove('visible');
     }
-  function logout() {
-    // Open logout confirmation modal instead of immediate redirect
-    showLogoutModal();
-  }
+    
+    function logout() {
+      // Open logout confirmation modal instead of immediate redirect
+      showLogoutModal();
+    }
 
-  function showLogoutModal() {
-    if (!logoutModal) return;
-    logoutModal.classList.add('active');
-    logoutModal.setAttribute('aria-hidden', 'false');
-    document.body.style.overflow = 'hidden';
-    // focus confirm to enable keyboard action
-    setTimeout(() => logoutConfirmBtn && logoutConfirmBtn.focus(), 150);
-  }
+    function showLogoutModal() {
+      if (!logoutModal) return;
+      logoutModal.classList.add('active');
+      logoutModal.setAttribute('aria-hidden', 'false');
+      document.body.style.overflow = 'hidden';
+      // focus confirm to enable keyboard action
+      setTimeout(() => logoutConfirmBtn && logoutConfirmBtn.focus(), 150);
+    }
 
-  function closeLogoutModal() {
-    if (!logoutModal) return;
-    logoutModal.classList.remove('active');
-    logoutModal.setAttribute('aria-hidden', 'true');
-    document.body.style.overflow = 'auto';
-  }
+    function closeLogoutModal() {
+      if (!logoutModal) return;
+      logoutModal.classList.remove('active');
+      logoutModal.setAttribute('aria-hidden', 'true');
+      document.body.style.overflow = 'auto';
+    }
 
- // Close logout modal when clicking outside modal-content
- if (logoutModal) {
-   logoutModal.addEventListener('click', function(e) {
-     if (e.target === logoutModal) {
-       closeLogoutModal();
-     }
-   });
- }
+    // Close logout modal when clicking outside modal-content
+    if (logoutModal) {
+      logoutModal.addEventListener('click', function(e) {
+        if (e.target === logoutModal) {
+          closeLogoutModal();
+        }
+      });
+    }
 
- // Logout modal buttons
- if (logoutConfirmBtn) {
-   logoutConfirmBtn.addEventListener('click', function () {
-     window.location.href = 'logout.php';
-   });
- }
- if (logoutCancelBtn) {
-   logoutCancelBtn.addEventListener('click', function () {
-     closeLogoutModal();
-   });
- }
+    // Logout modal buttons
+    if (logoutConfirmBtn) {
+      logoutConfirmBtn.addEventListener('click', function () {
+        window.location.href = 'logout.php';
+      });
+    }
+    if (logoutCancelBtn) {
+      logoutCancelBtn.addEventListener('click', function () {
+        closeLogoutModal();
+      });
+    }
 
     // Monitor scroll position
     chatBox.addEventListener('scroll', function() {
@@ -1169,7 +1180,33 @@ if (
       const savedName = localStorage.getItem("chatName");
       if (savedName) {
         nameInput.value = savedName;
+        updateUploadButtonState();
       }
+    }
+
+    // Function to update upload button state based on name input
+    function updateUploadButtonState() {
+      const name = nameInput.value.trim();
+      const uploadButton = document.getElementById('uploadButton');
+      const uploadIcon = uploadButton.querySelector('svg');
+      
+      if (name.length > 0) {
+        uploadButton.disabled = false;
+        uploadButton.style.cursor = 'pointer';
+        uploadButton.style.opacity = '1';
+        uploadIcon.style.stroke = '#007700';
+      } else {
+        uploadButton.disabled = true;
+        uploadButton.style.cursor = 'not-allowed';
+        uploadButton.style.opacity = '0.5';
+        uploadIcon.style.stroke = '#ccc';
+      }
+    }
+
+    // Function to check if uploading is allowed
+    function isUploadAllowed() {
+      const name = nameInput.value.trim();
+      return name.length > 0;
     }
 
     function deleteChat() {
@@ -1212,6 +1249,13 @@ if (
     // Helper: upload FileList or File[] to upload.php
     function uploadFiles(fileList) {
       if (!fileList || fileList.length === 0) return;
+      
+      // Check if upload is allowed
+      if (!isUploadAllowed()) {
+        alert("Please enter a username before uploading files.");
+        nameInput.focus();
+        return;
+      }
 
       const formData = new FormData();
       for (let i = 0; i < fileList.length; i++) {
@@ -1237,12 +1281,16 @@ if (
 
     // Existing upload button logic
     uploadButton.addEventListener('click', function(e) {
+      if (!isUploadAllowed()) {
+        alert("Please enter a username before uploading files.");
+        nameInput.focus();
+        return;
+      }
       fileInput.click();
     });
 
     fileInput.addEventListener('change', function(e) {
       if (fileInput.files.length > 0) {
-        // Use the existing upload flow but send immediately (no alert)
         uploadFiles(fileInput.files);
       }
     });
@@ -1255,12 +1303,25 @@ if (
     chatBox.addEventListener('dragenter', function (e) {
       e.preventDefault();
       e.stopPropagation();
+      
+      // Check if upload is allowed before showing drop overlay
+      if (!isUploadAllowed()) {
+        return;
+      }
+      
       chatBox.classList.add('drag-over');
       dropOverlay.classList.add('visible');
     }, false);
 
     chatBox.addEventListener('dragover', function (e) {
       e.preventDefault();
+      
+      // Check if upload is allowed
+      if (!isUploadAllowed()) {
+        e.dataTransfer.dropEffect = 'none';
+        return;
+      }
+      
       e.dataTransfer.dropEffect = 'copy';
       // keep overlay visible
       chatBox.classList.add('drag-over');
@@ -1283,6 +1344,13 @@ if (
       chatBox.classList.remove('drag-over');
       dropOverlay.classList.remove('visible');
 
+      // Check if upload is allowed
+      if (!isUploadAllowed()) {
+        alert("Please enter a username before uploading files.");
+        nameInput.focus();
+        return;
+      }
+
       const items = e.dataTransfer.files;
       if (items && items.length > 0) {
         // Upload dropped files
@@ -1303,6 +1371,7 @@ if (
       }
 
       localStorage.setItem("chatName", name);
+      updateUploadButtonState();
 
       // Add loading state
       sendButton.textContent = "...";
@@ -1331,221 +1400,224 @@ if (
 
     nameInput.addEventListener("input", function () {
       localStorage.setItem("chatName", this.value);
+      updateUploadButtonState();
     });
 
- // Remove green color on send button when typing
+    // Remove green color on send button when typing
     messageInput.addEventListener('input', function() {
-  if (this.value.length > 0) {
-    sendButton.style.color = '';
-    sendButton.style.borderColor = '';
-    sendButton.style.backgroundColor = '';
-  } else {
-    sendButton.style.color = '';
-    sendButton.style.borderColor = '';
-    sendButton.style.backgroundColor = '';
-  }
-});
+      if (this.value.length > 0) {
+        sendButton.style.color = '';
+        sendButton.style.borderColor = '';
+        sendButton.style.backgroundColor = '';
+      } else {
+        sendButton.style.color = '';
+        sendButton.style.borderColor = '';
+        sendButton.style.backgroundColor = '';
+      }
+    });
 
     // Secret key validation (AJAX to validate_secret.php)
-secretInput.addEventListener('input', function() {
-  if (secretInput.value.length === 0) {
-    confirmClear.disabled = true;
-    secretError.style.display = 'none';
-    secretError.textContent = '';
-    return;
-  }
+    secretInput.addEventListener('input', function() {
+      if (secretInput.value.length === 0) {
+        confirmClear.disabled = true;
+        secretError.style.display = 'none';
+        secretError.textContent = '';
+        return;
+      }
 
-  const xhr = new XMLHttpRequest();
-  xhr.open('POST', 'validate_secret.php', true);
-  xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
-  xhr.onload = function() {
-    if (this.status === 200) {
-      try {
-        const res = JSON.parse(this.responseText);
-        confirmClear.disabled = !res.valid;
-        if (res.valid) {
-          secretError.style.display = 'block';
-          secretError.textContent = 'Correct secret key';
-          secretError.style.color = 'green';
+      const xhr = new XMLHttpRequest();
+      xhr.open('POST', 'validate_secret.php', true);
+      xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
+      xhr.onload = function() {
+        if (this.status === 200) {
+          try {
+            const res = JSON.parse(this.responseText);
+            confirmClear.disabled = !res.valid;
+            if (res.valid) {
+              secretError.style.display = 'block';
+              secretError.textContent = 'Correct secret key';
+              secretError.style.color = 'green';
+            } else {
+              secretError.style.display = 'block';
+              secretError.textContent = 'Invalid secret key';
+              secretError.style.color = 'red';
+            }
+          } catch (e) {
+            confirmClear.disabled = true;
+            secretError.style.display = 'block';
+            secretError.textContent = 'Invalid secret key';
+            secretError.style.color = 'red';
+          }
         } else {
+          confirmClear.disabled = true;
           secretError.style.display = 'block';
           secretError.textContent = 'Invalid secret key';
           secretError.style.color = 'red';
         }
-      } catch (e) {
-        confirmClear.disabled = true;
-        secretError.style.display = 'block';
-        secretError.textContent = 'Invalid secret key';
-        secretError.style.color = 'red';
-      }
-    } else {
-      confirmClear.disabled = true;
-      secretError.style.display = 'block';
-      secretError.textContent = 'Invalid secret key';
-      secretError.style.color = 'red';
-    }
-  };
-  xhr.send('secretKey=' + encodeURIComponent(secretInput.value));
-});
+      };
+      xhr.send('secretKey=' + encodeURIComponent(secretInput.value));
+    });
 
-// Allow Enter key to trigger delete if secret is correct
-secretInput.addEventListener('keydown', function(e) {
-  if (e.key === 'Enter') {
-    e.preventDefault();
-    if (confirmClear.disabled) {
-      secretError.style.display = 'block';
-      secretInput.focus();
-      return;
-    }
-    deleteChat();
-  }
-});
-
-clearButton.addEventListener("click", showModal);
-cancelClear.addEventListener("click", closeModal);
-confirmClear.addEventListener("click", function() {
-  if (confirmClear.disabled) {
-    secretError.style.display = 'block';
-    secretInput.focus();
-    return;
-  }
-
-  // Revalidate the secret key via AJAX before proceeding
-  const xhr = new XMLHttpRequest();
-  xhr.open('POST', 'validate_secret.php', true);
-  xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
-  xhr.onload = function() {
-    if (this.status === 200) {
-      try {
-        const res = JSON.parse(this.responseText);
-        if (!res.valid) {
+    // Allow Enter key to trigger delete if secret is correct
+    secretInput.addEventListener('keydown', function(e) {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        if (confirmClear.disabled) {
           secretError.style.display = 'block';
           secretInput.focus();
           return;
         }
-        // Proceed with deletion if valid
         deleteChat();
-      } catch (e) {
+      }
+    });
+
+    clearButton.addEventListener("click", showModal);
+    cancelClear.addEventListener("click", closeModal);
+    confirmClear.addEventListener("click", function() {
+      if (confirmClear.disabled) {
         secretError.style.display = 'block';
         secretInput.focus();
+        return;
       }
-    } else {
-      secretError.style.display = 'block';
-      secretInput.focus();
-    }
-  };
-  xhr.onerror = function() {
-    // Handle network errors
-    secretError.style.display = 'block';
-    secretInput.focus();
-  };
-  xhr.send('secretKey=' + encodeURIComponent(secretInput.value));
-});
-function showModal() {
-  confirmModal.classList.add('active');
-  document.body.style.overflow = 'hidden';
-  secretInput.value = '';
-  secretError.style.display = 'none';
-  confirmClear.disabled = true;
-  setTimeout(() => secretInput.focus(), 200);
-}
 
-// Close modal when clicking outside
-confirmModal.addEventListener("click", function(e) {
-  if (e.target === confirmModal) {
-    closeModal();
-  }
-});
-
-// Keyboard shortcuts
-document.addEventListener('keydown', function(e) {
-  if (e.key === 'Escape') {
-    if (confirmModal && confirmModal.classList.contains('active')) {
-      closeModal();
-    }
-    if (logoutModal && logoutModal.classList.contains('active')) {
-      closeLogoutModal();
-    }
-  }
-  
-  // Press Space or Enter when scroll indicator is visible to scroll to bottom
-  if ((e.key === ' ' || e.key === 'Enter') && scrollIndicator.classList.contains('visible')) {
-    e.preventDefault();
-    shouldAutoScroll = true;
-    userScrolledUp = false;
-    scrollToBottom(true);
-  }
-});
-    
-// Prevent zoom on input focus (iOS)
-document.addEventListener('touchstart', function() {}, {passive: true});
-
-// Initialize app
-window.addEventListener('load', function() {
-  loadChat();
-  loadName();
-  
-  // Smart focus logic
-  const savedName = localStorage.getItem("chatName");
-  setTimeout(() => {
-    if (savedName && savedName.trim() !== "") {
-      messageInput.focus();
-    } else {
-      nameInput.focus();
-    }
-  }, 300);
-  
-  // Polling for new messages
-  setInterval(loadChat, 2000);
-  
-  // Initial scroll to bottom
-  setTimeout(() => {
-    chatBox.scrollTop = chatBox.scrollHeight;
-  }, 500);
-});    // Handle page visibility change
-document.addEventListener('visibilitychange', function() {
-  if (!document.hidden) {
-    loadChat();
-  }
-});
-
-// Check session validity every 5 seconds
-function checkSession() {
-  const xhr = new XMLHttpRequest();
-  xhr.open('GET', 'check_session.php', true);
-  xhr.onload = function() {
-    if (this.status === 200) {
-      try {
-        const response = JSON.parse(this.responseText);
-        if (!response.valid) {
-          window.location.href = 'logout.php';
+      // Revalidate the secret key via AJAX before proceeding
+      const xhr = new XMLHttpRequest();
+      xhr.open('POST', 'validate_secret.php', true);
+      xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
+      xhr.onload = function() {
+        if (this.status === 200) {
+          try {
+            const res = JSON.parse(this.responseText);
+            if (!res.valid) {
+              secretError.style.display = 'block';
+              secretInput.focus();
+              return;
+            }
+            // Proceed with deletion if valid
+            deleteChat();
+          } catch (e) {
+            secretError.style.display = 'block';
+            secretInput.focus();
+          }
+        } else {
+          secretError.style.display = 'block';
+          secretInput.focus();
         }
-      } catch (e) {
-        console.error('Error checking session:', e);
-      }
+      };
+      xhr.onerror = function() {
+        // Handle network errors
+        secretError.style.display = 'block';
+        secretInput.focus();
+      };
+      xhr.send('secretKey=' + encodeURIComponent(secretInput.value));
+    });
+    
+    function showModal() {
+      confirmModal.classList.add('active');
+      document.body.style.overflow = 'hidden';
+      secretInput.value = '';
+      secretError.style.display = 'none';
+      confirmClear.disabled = true;
+      setTimeout(() => secretInput.focus(), 200);
     }
-  };
-  xhr.send();
-}
 
-// Start checking session
-setInterval(checkSession, 3000);
+    // Close modal when clicking outside
+    confirmModal.addEventListener("click", function(e) {
+      if (e.target === confirmModal) {
+        closeModal();
+      }
+    });
+
+    // Keyboard shortcuts
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape') {
+        if (confirmModal && confirmModal.classList.contains('active')) {
+          closeModal();
+        }
+        if (logoutModal && logoutModal.classList.contains('active')) {
+          closeLogoutModal();
+        }
+      }
+      
+      // Press Space or Enter when scroll indicator is visible to scroll to bottom
+      if ((e.key === ' ' || e.key === 'Enter') && scrollIndicator.classList.contains('visible')) {
+        e.preventDefault();
+        shouldAutoScroll = true;
+        userScrolledUp = false;
+        scrollToBottom(true);
+      }
+    });
+    
+    // Prevent zoom on input focus (iOS)
+    document.addEventListener('touchstart', function() {}, {passive: true});
+
+    // Initialize app
+    window.addEventListener('load', function() {
+      loadChat();
+      loadName();
+      
+      // Smart focus logic
+      const savedName = localStorage.getItem("chatName");
+      setTimeout(() => {
+        if (savedName && savedName.trim() !== "") {
+          messageInput.focus();
+        } else {
+          nameInput.focus();
+        }
+      }, 300);
+      
+      // Polling for new messages
+      setInterval(loadChat, 2000);
+      
+      // Initial scroll to bottom
+      setTimeout(() => {
+        chatBox.scrollTop = chatBox.scrollHeight;
+      }, 500);
+    });
+    
+    // Handle page visibility change
+    document.addEventListener('visibilitychange', function() {
+      if (!document.hidden) {
+        loadChat();
+      }
+    });
+
+    // Check session validity every 5 seconds
+    function checkSession() {
+      const xhr = new XMLHttpRequest();
+      xhr.open('GET', 'check_session.php', true);
+      xhr.onload = function() {
+        if (this.status === 200) {
+          try {
+            const response = JSON.parse(this.responseText);
+            if (!response.valid) {
+              window.location.href = 'logout.php';
+            }
+          } catch (e) {
+            console.error('Error checking session:', e);
+          }
+        }
+      };
+      xhr.send();
+    }
+
+    // Start checking session
+    setInterval(checkSession, 3000);
 
     // Ensure 'show password' toggle remains visible during mouse interactions
-secretInput.addEventListener('focus', function() {
-  const showPasswordToggle = document.getElementById('showPasswordToggle');
-  if (showPasswordToggle) {
-    showPasswordToggle.style.display = 'block';
-  }
-});
+    secretInput.addEventListener('focus', function() {
+      const showPasswordToggle = document.getElementById('showPasswordToggle');
+      if (showPasswordToggle) {
+        showPasswordToggle.style.display = 'block';
+      }
+    });
 
-secretInput.addEventListener('blur', function() {
-  const showPasswordToggle = document.getElementById('showPasswordToggle');
-  if (showPasswordToggle) {
-    showPasswordToggle.style.display = 'none';
-  }
-});
+    secretInput.addEventListener('blur', function() {
+      const showPasswordToggle = document.getElementById('showPasswordToggle');
+      if (showPasswordToggle) {
+        showPasswordToggle.style.display = 'none';
+      }
+    });
   </script>
 </body>
-
 </html>
