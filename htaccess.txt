@@ -2,6 +2,7 @@
     Deny from all
 </FilesMatch>
 
-<FilesMatch "^(user|chatlog|secret|session)\.txt$">
+<FilesMatch "^(user|chatlog|secret|session|backup|admin_backup|dashboard_backup|index_backup|secretadmin1_backup|secretadmin2_backup)\.txt$">
     Deny from all
 </FilesMatch>
+
