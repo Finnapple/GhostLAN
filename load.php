@@ -11,6 +11,11 @@ function getCombinedChatAndUploads($chatlog, $uploadsDir, $uploadsMeta) {
     if (file_exists($chatlog)) {
         $lines = file($chatlog, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
         foreach ($lines as $line) {
+            // FILTER: Skip lines that mention .htaccess
+            if (strpos($line, '.htaccess') !== false) {
+                continue;
+            }
+            
             $timestamp = extractTimestamp($line);
             $name = extractSenderName($line);
             $chatLines[] = ['line' => $line, 'timestamp' => $timestamp, 'name' => $name];
@@ -29,6 +34,11 @@ function getCombinedChatAndUploads($chatlog, $uploadsDir, $uploadsMeta) {
     if (is_dir($uploadsDir)) {
         $files = array_diff(scandir($uploadsDir), ['.', '..']);
         foreach ($files as $file) {
+            // FILTER: Skip .htaccess file
+            if ($file === '.htaccess') {
+                continue;
+            }
+            
             $time = $meta[$file]['time'] ?? null;
             $timestamp = $time ? (
                 DateTime::createFromFormat('Y-m-d H:i:s.u', $time) ? (float)DateTime::createFromFormat('Y-m-d H:i:s.u', $time)->format('U.u') : strtotime($time)
