@@ -1,0 +1,7 @@
+<FilesMatch "\.(sql|bak|env|zip|tar|gz)$">
+    Deny from all
+</FilesMatch>
+
+<FilesMatch "^(user|chatlog|secret|session)\.txt$">
+    Deny from all
+</FilesMatch>
